@@ -14,21 +14,19 @@ function TodoApp() {
       const todos = await service.getTasks();
       setTodos(todos);
     } catch (error) {
-      // Interceptor handles redirects
+      console.error("Failed to fetch todos:", error);
     }
   }
 
   async function createTodo(e) {
     e.preventDefault();
-    if (!newTodo.trim()) return; // מניעת הוספת משימה ריקה
+    if (!newTodo.trim()) return; 
     await service.addTask(newTodo);
     setNewTodo("");
     await getTodos();
   }
 
   async function updateCompleted(todo, isComplete) {
-    // שים לב: אנחנו משתמשים ב-idItems וב-name (כפי שהם מגיעים מה-API)
-    // ושולחים את שלושת הפרמטרים ש-service.js מצפה להם
     await service.setCompleted(todo.idItems, todo.name, isComplete);
     await getTodos();
   }

@@ -89,21 +89,17 @@ var app = builder.Build();
 
 // --- 5. Middleware Pipeline ---
 
-// Swagger (Development only)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// CORS first
 app.UseCors();
 
-// Authentication & Authorization after CORS
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Landing page
 app.MapGet("/", () => "ToDo API is running! Go to /swagger to test it.");
 
 // --- Auth Endpoints ---
@@ -118,7 +114,6 @@ app.MapPost("/register", async (ToDoDbContext db, User newUser) =>
     if (existingUser != null)
         return Results.Conflict("User already exists.");
 
-    // Hash the password
     newUser.Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
     
     db.Users.Add(newUser);
@@ -132,11 +127,9 @@ app.MapPost("/login", async (ToDoDbContext db, User loginUser, IConfiguration co
 {
     var user = await db.Users.FirstOrDefaultAsync(u => u.UserName == loginUser.UserName);
     
-    // Verify user and password hash
     if (user == null || !BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password))
         return Results.Unauthorized();
 
-    // Generate JWT Token
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 

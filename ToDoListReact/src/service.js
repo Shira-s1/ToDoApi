@@ -22,7 +22,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 2. Interceptor לתפיסת שגיאות ורישום ללוג + טיפול ב-401
 apiClient.interceptors.response.use(
     response => response,
     error => {
@@ -32,7 +31,6 @@ apiClient.interceptors.response.use(
             message: error.message
         });
 
-        // טיפול ב-401 (רק אם זה לא בקשת התחברות עצמה, כדי לאפשר טיפול בשגיאה בקומפוננטה)
         if (error.response && error.response.status === 401) {
             const isLoginRequest = error.config && error.config.url.includes('/login');
             
@@ -47,15 +45,12 @@ apiClient.interceptors.response.use(
 );
 
 export default {
-    // שליפת כל המשימות
     getTasks: async () => {
         const result = await apiClient.get('/items');
         return result.data;
     },
 
-    // הוספת משימה חדשה
     addTask: async (name) => {
-        // שולחים אובייקט שתואם למחלקת Item ב-C#
         const result = await apiClient.post('/items', { 
             Name: name, 
             IsComplete: false 
@@ -63,10 +58,7 @@ export default {
         return result.data;
     },
 
-    // עדכון סטטוס משימה - התיקון לשגיאת 400 נמצא כאן!
     setCompleted: async (id, name, isComplete) => {
-        // ה-API מצפה ל-ID גם ב-URL וגם בתוך ה-Body
-        // ושמות השדות חייבים להתחיל באות גדולה (IdItems, Name, IsComplete)
         const result = await apiClient.put(`/items/${id}`, { 
             IdItems: id,      
             Name: name, 
@@ -75,13 +67,11 @@ export default {
         return result.data;
     },
 
-    // מחיקת משימה
     deleteTask: async (id) => {
         const result = await apiClient.delete(`/items/${id}`);
         return result.data;
     },
 
-    // Auth methods
     register: async (username, password) => {
         const result = await apiClient.post('/register', { 
           UserName: username, 
