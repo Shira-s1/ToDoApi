@@ -1,0 +1,33 @@
+# --- General ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+*.log
+
+# --- .NET (TodoApi) ---
+TodoApi/bin/
+TodoApi/obj/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.user
+*.pdb
+*.cache
+*.dll
+*.exe
+appsettings.Development.json
+
+# --- React (ToDoListReact) ---
+ToDoListReact/node_modules/
+ToDoListReact/build/
+ToDoListReact/.env.local
+ToDoListReact/.env.development.local
+ToDoListReact/.env.test.local
+ToDoListReact/.env.production.local
+ToDoListReact/npm-debug.log*
+ToDoListReact/yarn-debug.log*
+ToDoListReact/yarn-error.log*
