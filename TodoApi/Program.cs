@@ -74,9 +74,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://todoapi-t8jr.onrender.com")
+        policy.SetIsOriginAllowed(origin => true) // More permissive for debugging
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
