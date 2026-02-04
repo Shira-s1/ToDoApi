@@ -82,11 +82,10 @@ builder.Services.AddCors(options =>
 });
 
 // --- 4. Database Connection ---
-var connectionString = builder.Configuration.GetConnectionString("ToDoDB")
-    ?? throw new InvalidOperationException("Connection string 'ToDoDB' not found.");
+var connectionString = "Server=bcuhkxwv0nldifpaesyf-mysql.services.clever-cloud.com;Database=bcuhkxwv0nldifpaesyf;Uid=u2qewhssb8ncpkc0;Pwd=Q4qogxKLwF5DN3GVtFsx;Port=3306;SslMode=Required;";
+
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
 var app = builder.Build();
 
 // --- 5. Middleware Pipeline ---
