@@ -58,3 +58,4 @@ public partial class ToDoDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+// Server=bcuhkxwv0nldifpaesyf-mysql.services.clever-cloud.com;Database=bcuhkxwv0nldifpaesyf;Uid=u2qewhssb8ncpkc0;Pwd=Q4qogxKLwF5DN3GVtFsx;
