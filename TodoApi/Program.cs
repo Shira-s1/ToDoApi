@@ -14,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Todo API", Version = "v1" });
-    
+
     // Define Security Scheme for JWT
     var securityScheme = new OpenApiSecurityScheme
     {
@@ -81,7 +81,7 @@ builder.Services.AddCors(options =>
 });
 
 // --- 4. Database Connection ---
-var connectionString = builder.Configuration.GetConnectionString("ToDoDB") 
+var connectionString = builder.Configuration.GetConnectionString("ToDoDB")
     ?? throw new InvalidOperationException("Connection string 'ToDoDB' not found.");
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
@@ -89,12 +89,9 @@ builder.Services.AddDbContext<ToDoDbContext>(options =>
 var app = builder.Build();
 
 // --- 5. Middleware Pipeline ---
+app.UseSwagger();
+app.UseSwaggerUI();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 app.UseCors("AllowReactApp");
 
@@ -116,7 +113,7 @@ app.MapPost("/register", async (ToDoDbContext db, User newUser) =>
         return Results.Conflict("User already exists.");
 
     newUser.Password = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
-    
+
     db.Users.Add(newUser);
     await db.SaveChangesAsync();
 
@@ -127,7 +124,7 @@ app.MapPost("/register", async (ToDoDbContext db, User newUser) =>
 app.MapPost("/login", async (ToDoDbContext db, User loginUser, IConfiguration config) =>
 {
     var user = await db.Users.FirstOrDefaultAsync(u => u.UserName == loginUser.UserName);
-    
+
     if (user == null || !BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password))
         return Results.Unauthorized();
 
@@ -157,7 +154,7 @@ app.MapPost("/login", async (ToDoDbContext db, User loginUser, IConfiguration co
 // --- Protected Items Endpoints ---
 // Added .RequireAuthorization() to all items endpoints
 
-app.MapGet("/items", async (ToDoDbContext db, ClaimsPrincipal user) => 
+app.MapGet("/items", async (ToDoDbContext db, ClaimsPrincipal user) =>
 {
     var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     return await db.Items.Where(t => t.UserId == userId).ToListAsync();
@@ -168,7 +165,7 @@ app.MapPost("/items", async (ToDoDbContext db, Item newItem, ClaimsPrincipal use
 {
     var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     newItem.UserId = userId;
-    
+
     db.Items.Add(newItem);
     await db.SaveChangesAsync();
     return Results.Created($"/items/{newItem.IdItems}", newItem);
@@ -179,7 +176,7 @@ app.MapPut("/items/{id}", async (ToDoDbContext db, int id, Item inputItem, Claim
 {
     var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     var item = await db.Items.FirstOrDefaultAsync(i => i.IdItems == id && i.UserId == userId);
-    
+
     if (item is null) return Results.NotFound();
 
     item.Name = inputItem.Name;
@@ -194,7 +191,7 @@ app.MapDelete("/items/{id}", async (ToDoDbContext db, int id, ClaimsPrincipal us
 {
     var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     var item = await db.Items.FirstOrDefaultAsync(i => i.IdItems == id && i.UserId == userId);
-    
+
     if (item is null) return Results.NotFound();
 
     db.Items.Remove(item);
