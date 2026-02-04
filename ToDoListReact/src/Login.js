@@ -6,22 +6,32 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    
     setError('');
+    setLoading(true);
     
     try {
         await service.login(username, password);
         navigate('/');
     } catch (err) {
+        console.error(err);
         if (err.response && err.response.status === 401) {
             setError('Invalid username or password. Please try again.');
         } else {
             setError('Login failed. Please check your network connection.');
         }
-        console.error(err);
+        
+        window.alert("Login failed");
+        setUsername('');
+        setPassword('');
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -50,8 +60,12 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
             />
-            <button type="submit" style={{ padding: '10px', background: '#e6e6e6', border: 'none', cursor: 'pointer' }}>
-                Login
+            <button 
+                type="submit" 
+                style={{ padding: '10px', background: '#e6e6e6', border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}
+                disabled={loading}
+            >
+                {loading ? 'Logging in...' : 'Login'}
             </button>
         </form>
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}

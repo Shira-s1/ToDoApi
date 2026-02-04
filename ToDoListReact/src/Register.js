@@ -6,11 +6,15 @@ function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     setError('');
+    setLoading(true);
 
     try {
         await service.register(username, password);
@@ -18,12 +22,18 @@ function Register() {
         await service.login(username, password);
         navigate('/');
     } catch (err) {
+        console.error(err);
         if (err.response && err.response.status === 409) {
             setError('Username already exists. Please choose a different one.');
         } else {
             setError('Registration failed. Please try again later.');
         }
-        console.error(err);
+        
+        window.alert("Registration failed");
+        setUsername('');
+        setPassword('');
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -52,8 +62,12 @@ function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
             />
-            <button type="submit" style={{ padding: '10px', background: '#e6e6e6', border: 'none', cursor: 'pointer' }}>
-                Register
+            <button 
+                type="submit" 
+                style={{ padding: '10px', background: '#e6e6e6', border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}
+                disabled={loading}
+            >
+                {loading ? 'Registering...' : 'Register'}
             </button>
         </form>
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}

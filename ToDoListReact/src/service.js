@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. הגדרת ה-Instance (הגדרות ברירת מחדל כפי שנדרש במטלה)
 const apiClient = axios.create({
-    baseURL: "http://localhost:5036", // ודאי שזה הפורט שלך
+    baseURL: process.env.REACT_APP_API_URL || "http://localhost:5036", 
     headers: {
         'Content-Type': 'application/json'
     }

@@ -49,7 +49,7 @@ var jwtAudience = builder.Configuration["Jwt:Audience"];
 
 if (string.IsNullOrEmpty(jwtKey))
 {
-    throw new InvalidOperationException("Jwt:Key is missing in appsettings.json");
+    throw new InvalidOperationException("Jwt:Key is missing! Please set it in appsettings.json or environment variables (Jwt__Key).");
 }
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -72,16 +72,17 @@ builder.Services.AddAuthorization();
 // --- 3. CORS Configuration ---
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000", "https://todoapi-t8jr.onrender.com")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
 
 // --- 4. Database Connection ---
-var connectionString = builder.Configuration.GetConnectionString("ToDoDB");
+var connectionString = builder.Configuration.GetConnectionString("ToDoDB") 
+    ?? throw new InvalidOperationException("Connection string 'ToDoDB' not found.");
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -95,7 +96,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -130,7 +131,8 @@ app.MapPost("/login", async (ToDoDbContext db, User loginUser, IConfiguration co
     if (user == null || !BCrypt.Net.BCrypt.Verify(loginUser.Password, user.Password))
         return Results.Unauthorized();
 
-    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+    var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing!");
+    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
     var claims = new[]
