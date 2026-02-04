@@ -83,8 +83,7 @@ builder.Services.AddCors(options =>
 
 // --- 4. Database Connection ---
 
-var connectionString = "Server=bcuhkxwv0nldifpaesyf-mysql.services.clever-cloud.com;Database=bcuhkxwv0nldifpaesyf;Uid=u2qewhssb8ncpkc0;Pwd=Q4qogxKLwF5DN3GVtFsx;Port=3306;SslMode=Required;";
-
+var connectionString = builder.Configuration.GetConnectionString("ToDoDB");
 builder.Services.AddDbContext<ToDoDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
